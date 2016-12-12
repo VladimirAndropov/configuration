@@ -10,14 +10,37 @@
 ##
 # Defaults for role discovery
 #
-DISCOVERY_GIT_IDENTITY: !!null
 
-# depends upon Newrelic being enabled via COMMON_ENABLE_NEWRELIC
-# and a key being provided via NEWRELIC_LICENSE_KEY
-DISCOVERY_NEWRELIC_APPNAME: "{{ COMMON_ENVIRONMENT }}-{{ COMMON_DEPLOYMENT }}-{{ discovery_service_name }}"
-DISCOVERY_PIP_EXTRA_ARGS: "-i {{ COMMON_PYPI_MIRROR_URL }}"
-DISCOVERY_NGINX_PORT: 18381
-DISCOVERY_SSL_NGINX_PORT: 48381
+
+#
+# vars are namespace with the module name.
+#
+discovery_service_name: "discovery"
+discovery_gunicorn_port: 8381
+
+discovery_environment: &discovery_environment
+  DJANGO_SETTINGS_MODULE: "{{ edx_django_service_django_settings_module }}"
+  PATH: "{{ edx_django_service_nodeenv_bin }}:{{ edx_django_service_venv_dir }}/bin:{{ ansible_env.PATH }}"
+  DISCOVERY_CFG: "{{ COMMON_CFG_DIR }}/{{ discovery_service_name }}.yml"
+
+discovery_migration_environment:
+  << : *discovery_environment
+  DB_MIGRATION_USER: "{{ COMMON_MYSQL_MIGRATE_USER }}"
+  DB_MIGRATION_PASS: "{{ COMMON_MYSQL_MIGRATE_PASS }}"
+
+
+#
+# OS packages
+#
+
+discovery_debian_pkgs:
+  - libxml2-dev
+  - libxslt-dev
+  - libjpeg-dev
+
+
+DISCOVERY_NGINX_PORT: "1{{ discovery_gunicorn_port }}"
+DISCOVERY_SSL_NGINX_PORT: "4{{ discovery_gunicorn_port }}"
 
 DISCOVERY_DEFAULT_DB_NAME: 'discovery'
 DISCOVERY_MYSQL: 'localhost'
@@ -53,7 +76,7 @@ DISCOVERY_CACHES:
 
 DISCOVERY_VERSION: "master"
 DISCOVERY_DJANGO_SETTINGS_MODULE: "course_discovery.settings.production"
-DISCOVERY_URL_ROOT: 'http://discovery:18381'
+DISCOVERY_URL_ROOT: 'http://discovery:{{ DISCOVERY_NGINX_PORT }}'
 DISCOVERY_LOGOUT_URL: '{{ DISCOVERY_URL_ROOT }}/logout/'
 DISCOVERY_OAUTH_URL_ROOT: '{{ EDXAPP_LMS_ROOT_URL | default("http://127.0.0.1:8000") }}/oauth2'
 DISCOVERY_OIDC_LOGOUT_URL: '{{ EDXAPP_LMS_ROOT_URL | default("http://127.0.0.1:8000") }}/logout'
@@ -178,26 +201,6 @@ DISCOVERY_SERVICE_CONFIG:
 
   PUBLISHER_FROM_EMAIL: '{{ DISCOVERY_PUBLISHER_FROM_EMAIL }}'
 
-DISCOVERY_REPOS:
-  - PROTOCOL: "{{ COMMON_GIT_PROTOCOL }}"
-    DOMAIN: "{{ COMMON_GIT_MIRROR }}"
-    PATH: "{{ COMMON_GIT_PATH }}"
-    REPO: course-discovery.git
-    VERSION: "{{ DISCOVERY_VERSION }}"
-    DESTINATION: "{{ discovery_code_dir }}"
-    SSH_KEY: "{{ DISCOVERY_GIT_IDENTITY }}"
-
-
-DISCOVERY_GUNICORN_WORKERS: "2"
-DISCOVERY_GUNICORN_EXTRA: ""
-DISCOVERY_GUNICORN_EXTRA_CONF: ""
-DISCOVERY_GUNICORN_WORKER_CLASS: "sync"
-
-DISCOVERY_HOSTNAME: '~^((stage|prod)-)?discovery.*'
-
-nginx_discovery_gunicorn_hosts:
-  - 127.0.0.1
-
 # Vars that are used when the automated role is "mixed-in" via the deploying play
 # This data structure specifies all the users with access to run command remotely
 # over SSH and the fully qualified command that they can run via sudo to the
@@ -210,56 +213,3 @@ DISCOVERY_AUTOMATED_USERS:
         sudo_user: "discovery"
     authorized_keys:
       - "SSH authorized key"
-
-#
-# vars are namespace with the module name.
-#
-discovery_role_name: discovery
-discovery_venv_dir: "{{ discovery_home }}/venvs/{{ discovery_service_name }}"
-
-discovery_environment:
-  DJANGO_SETTINGS_MODULE: "{{ DISCOVERY_DJANGO_SETTINGS_MODULE }}"
-  # rename should synch with app
-  COURSE_DISCOVERY_CFG: "{{ COMMON_CFG_DIR }}/{{ discovery_service_name }}.yml"
-  PATH: "{{ discovery_nodeenv_bin }}:{{ discovery_venv_dir }}/bin:{{ ansible_env.PATH }}"
-
-
-discovery_migration_environment:
-  DJANGO_SETTINGS_MODULE: "{{ DISCOVERY_DJANGO_SETTINGS_MODULE }}"
-  # rename should synch with app
-  COURSE_DISCOVERY_CFG: "{{ COMMON_CFG_DIR }}/{{ discovery_service_name }}.yml"
-  PATH: "{{ discovery_venv_dir }}/bin:{{ ansible_env.PATH }}"
-  DB_MIGRATION_USER: "{{ COMMON_MYSQL_MIGRATE_USER }}"
-  DB_MIGRATION_PASS: "{{ COMMON_MYSQL_MIGRATE_PASS }}"
-
-discovery_service_name: "discovery"
-discovery_user: "{{ discovery_service_name }}"
-discovery_home: "{{ COMMON_APP_DIR }}/{{ discovery_service_name }}"
-discovery_code_dir: "{{ discovery_home }}/{{ discovery_service_name }}"
-
-discovery_nodeenv_dir: "{{ discovery_home }}/nodeenvs/{{ discovery_service_name }}"
-discovery_nodeenv_bin: "{{ discovery_nodeenv_dir }}/bin"
-discovery_node_modules_dir: "{{ discovery_code_dir }}/node_modules"
-discovery_node_bin: "{{ discovery_node_modules_dir }}/.bin"
-discovery_node_version: "4.4.7"
-
-discovery_gunicorn_host: "127.0.0.1"
-discovery_gunicorn_port: 8381
-discovery_gunicorn_timeout: 300
-
-discovery_log_dir: "{{ COMMON_LOG_DIR }}/{{ discovery_service_name }}"
-
-#
-# OS packages
-#
-
-discovery_debian_pkgs:
-  - libmysqlclient-dev
-  - libssl-dev
-  - libffi-dev  # Needed to install the Python cryptography library for asymmetric JWT signing
-  - libmemcached-dev # Needed for memcache
-  - libxml2-dev
-  - libxslt-dev
-  - libjpeg-dev
-
-discovery_redhat_pkgs: []
