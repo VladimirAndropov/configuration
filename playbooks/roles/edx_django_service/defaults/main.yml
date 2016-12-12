@@ -1,0 +1,83 @@
+---
+edx_django_service_name: " NOT-SET "
+edx_django_service_repo: "{{ edx_django_service_name }}"
+edx_django_service_home: "{{ COMMON_APP_DIR }}/{{ edx_django_service_name }}"
+edx_django_service_user: "{{ edx_django_service_name }}"
+edx_django_service_use_python35: true
+
+# This can be overwritten by setting either the devstack or devstack:install tag.
+edx_django_service_is_devstack: false
+
+edx_django_service_has_static_assets: true
+
+edx_django_service_wsgi_name: "{{ edx_django_service_name }}"
+
+edx_django_service_name_devstack_logs:
+  - "{{ nginx_log_dir }}/access.log"
+  - "{{ nginx_log_dir }}/error.log"
+  - "{{ supervisor_log_dir }}/{{ edx_django_service_name }}-stdout.log"
+  - "{{ supervisor_log_dir }}/{{ edx_django_service_name }}-stderr.log"
+
+
+# TODO Override with global
+edx_django_service_version: "master"
+edx_django_service_git_identity: !!null
+edx_django_service_django_settings_module: null
+
+edx_django_service_code_dir: "{{ edx_django_service_home }}/{{ edx_django_service_name }}"
+edx_django_service_venv_dir: "{{ edx_django_service_home }}/venvs/{{ edx_django_service_name }}"
+edx_django_service_venv_bin_dir: "{{ edx_django_service_venv_dir }}/bin"
+
+edx_django_service_nodeenv_dir: "{{ edx_django_service_home }}/nodeenvs/{{ edx_django_service_name }}"
+edx_django_service_nodeenv_bin: "{{ edx_django_service_nodeenv_dir }}/bin"
+edx_django_service_node_modules_dir: "{{ edx_django_service_code_dir }}/node_modules"
+edx_django_service_node_bin: "{{ edx_django_service_node_modules_dir }}/.bin"
+edx_django_service_node_version: "6.9.2"
+
+# TODO These must be overwritten by each play until we upgrade to Ansible 2.x with the combine filter.
+edx_django_service_environment: &edx_django_service_environment
+  DJANGO_SETTINGS_MODULE: "{{ edx_django_service_django_settings_module }}"
+  PATH: "{{ edx_django_service_nodeenv_bin }}:{{ edx_django_service_venv_dir }}/bin:{{ ansible_env.PATH }}"
+
+edx_django_service_migration_environment:
+  << : *edx_django_service_environment
+  DB_MIGRATION_USER: "{{ COMMON_MYSQL_MIGRATE_USER }}"
+  DB_MIGRATION_PASS: "{{ COMMON_MYSQL_MIGRATE_PASS }}"
+
+# TODO Find a way to extend
+edx_django_service_debian_pkgs:
+  - libmysqlclient-dev
+  - libssl-dev
+  - libffi-dev  # Needed to install the Python cryptography library for asymmetric JWT signing
+  - libmemcached-dev # Needed for memcached
+edx_django_service_debian_pkgs_extra: []
+edx_django_service_redhat_pkgs: []
+
+# TODO These should be overridden as globals.
+edx_django_service_gunicorn_extra: ""
+edx_django_service_gunicorn_extra_conf: ""
+edx_django_service_gunicorn_host: "127.0.0.1"
+edx_django_service_gunicorn_port: 8381
+edx_django_service_gunicorn_timeout: 300
+edx_django_service_gunicorn_workers: 2
+edx_django_service_gunicorn_worker_class: "gevent"
+
+nginx_edx_django_service_gunicorn_hosts:
+  - 127.0.0.1
+
+# TODO These should be overridden as global names to maintain compatibility with sandbox and devstack.
+edx_django_service_hostname: "~^((stage|prod)-)?{{ edx_django_service_name }}.*"
+edx_django_service_nginx_port: "1{{ edx_django_service_gunicorn_port }}"
+edx_django_service_ssl_nginx_port: "4{{ edx_django_service_gunicorn_port }}"
+
+
+edx_django_service_newrelic_appname: "{{ COMMON_ENVIRONMENT }}-{{ COMMON_DEPLOYMENT }}-{{ edx_django_service_name }}"
+
+edx_django_service_repos:
+  - PROTOCOL: "{{ COMMON_GIT_PROTOCOL }}"
+    DOMAIN: "{{ COMMON_GIT_MIRROR }}"
+    PATH: "{{ COMMON_GIT_PATH }}"
+    REPO: "{{ edx_django_service_repo }}.git"
+    VERSION: "{{ edx_django_service_version }}"
+    DESTINATION: "{{ edx_django_service_code_dir }}"
+    SSH_KEY: "{{ edx_django_service_git_identity }}"
