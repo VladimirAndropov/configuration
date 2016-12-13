@@ -11,20 +11,20 @@
 # Role includes for role ecommerce
 # 
 dependencies:
-  - common
-  - supervisor
-  - role: edx_service
-    edx_service_name: "{{ ecommerce_service_name }}"
-    edx_service_config: "{{ ECOMMERCE_SERVICE_CONFIG }}"
-    edx_service_repos: "{{ ECOMMERCE_REPOS }}"
-    edx_service_user: "{{ ecommerce_user }}"
-    edx_service_home: "{{ ecommerce_home }}"
-    edx_service_packages:
-      debian: "{{ ecommerce_debian_pkgs }}"
-      redhat: "{{ ecommerce_redhat_pkgs }}"
+  - role: edx_django_service
+    edx_django_service_version: "{{ ECOMMERCE_VERSION }}"
+    edx_django_service_name: "{{ ecommerce_service_name }}"
+    edx_django_service_config: "{{ ECOMMERCE_SERVICE_CONFIG }}"
+    edx_django_service_debian_pkgs_extra: "{{ ecommerce_debian_pkgs }}"
+    edx_django_service_gunicorn_port: "{{ ecommerce_gunicorn_port }}"
+    edx_django_service_django_settings_module: "{{ ECOMMERCE_DJANGO_SETTINGS_MODULE }}"
+    edx_django_service_environment: "{{ ecommerce_environment }}"
+    edx_django_service_migration_environment: "{{ ecommerce_migration_environment }}"
+    edx_django_service_gunicorn_extra: "{{ ECOMMERCE_GUNICORN_EXTRA }}"
+    edx_django_service_nginx_port: "{{ ECOMMERCE_NGINX_PORT }}"
+    edx_django_service_ssl_nginx_port: "{{ ECOMMERCE_SSL_NGINX_PORT }}"
+    edx_django_service_use_python35: false
   - role: edx_themes
     theme_users:
       - "{{ ecommerce_user }}"
     when: "{{ ECOMMERCE_ENABLE_COMPREHENSIVE_THEMING }}"
-
-  - oraclejdk
