@@ -7,23 +7,26 @@
 # This allows the dockerfile to update /edx/app/edx_ansible/edx_ansible
 # with the currently checked-out configuration repo.
 
-FROM edxops/xenial-common:latest
+FROM edxops/trusty-common:latest
 MAINTAINER edxops
 
-ENV PROGRAMS_VERSION=master
-ENV REPO_OWNER=edx
+ARG PROGRAMS_VERSION=master
+ARG REPO_OWNER=edx
 
 ADD . /edx/app/edx_ansible/edx_ansible
-
 WORKDIR /edx/app/edx_ansible/edx_ansible/docker/plays
+
+USER root
+RUN apt-get update
 
 COPY docker/build/programs/ansible_overrides.yml /
 RUN sudo /edx/app/edx_ansible/venvs/edx_ansible/bin/ansible-playbook programs.yml \
     -c local -i '127.0.0.1,' \
-    -t 'install,assets' \
+    -t 'install,assets,devstack:install' \
     --extra-vars="@/ansible_overrides.yml" \
     --extra-vars="PROGRAMS_VERSION=$PROGRAMS_VERSION" \
     --extra-vars="COMMON_GIT_PATH=$REPO_OWNER"
 
-USER root 
+USER root
 CMD ["/edx/app/supervisor/venvs/supervisor/bin/supervisord", "-n", "--configuration", "/edx/app/supervisor/supervisord.conf"]
+EXPOSE 18150
