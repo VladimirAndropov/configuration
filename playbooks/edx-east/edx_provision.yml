@@ -26,7 +26,7 @@
       #!/bin/bash
       set -x
       set -e
-      export RUN_ANSIBLE=true;
+      export RUN_ANSIBLE=false;
       wget https://raw.githubusercontent.com/edx/configuration/{{ configuration_version }}/util/install/ansible-bootstrap.sh -O - | sudo bash;
   roles:
     - role: launch_ec2
