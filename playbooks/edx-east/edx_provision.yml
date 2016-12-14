@@ -25,7 +25,7 @@
     bootstrap_userdata: >
         #!/bin/env bash -xe
         export RUN_ANSIBLE=true;
-        wget https://raw.githubusercontent.com/edx/configuration/feanil/sandbox_16.04/util/install/ansible-bootstrap.sh -O - | sudo bash;
+        wget https://raw.githubusercontent.com/edx/configuration/{{ configuration_version }}/util/install/ansible-bootstrap.sh -O - | sudo bash;
   roles:
     - role: launch_ec2
       keypair: "{{ keypair }}"
