@@ -655,6 +655,21 @@ edxapp_theme_dir: "{{ edxapp_data_dir }}/themes"
 edxapp_git_identity: "{{ edxapp_app_dir }}/edxapp-git-identity"
 edxapp_git_ssh: "/tmp/edxapp_git_ssh.sh"
 
+
+# TODO Integrate with edx_django_service
+edx_django_service_name: "edxapp"
+edx_django_service_home: "{{ edxapp_app_dir }}"
+edx_django_service_nodeenv_bin: "{{ edxapp_nodeenv_bin }}"
+edx_django_service_venv_bin_dir: "{{ edxapp_venv_bin }}"
+edx_django_service_code_dir: "{{ edxapp_app_dir }}/edx-platform"
+edx_django_service_name_devstack_logs:
+  - "{{ nginx_log_dir }}/access.log"
+  - "{{ nginx_log_dir }}/error.log"
+  - "{{ supervisor_log_dir }}/cms-stdout.log"
+  - "{{ supervisor_log_dir }}/cms-stderr.log"
+  - "{{ supervisor_log_dir }}/lms-stdout.log"
+  - "{{ supervisor_log_dir }}/lms-stderr.log"
+
 # TODO: This can be removed once VPC-122 is resolved
 edxapp_legacy_course_data_dir: "{{ edxapp_app_dir }}/data"
 
