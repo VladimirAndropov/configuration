@@ -23,7 +23,7 @@
     elb: false
     ec2_vpc_subnet_id: subnet-cd867aba
     bootstrap_userdata: >
-        #!/bin/env bash -xe
+        #!/usr/bin/env bash -xe \n
         export RUN_ANSIBLE=true;
         wget https://raw.githubusercontent.com/edx/configuration/{{ configuration_version }}/util/install/ansible-bootstrap.sh -O - | sudo bash;
   roles:
