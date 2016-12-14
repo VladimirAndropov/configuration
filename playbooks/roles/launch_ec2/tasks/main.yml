@@ -52,6 +52,7 @@
         delete_on_termination: true
     zone: "{{ zone }}"
     instance_profile_name: "{{ instance_profile_name }}"
+    user_data: "{{ user_data }}"
   register: ec2
 
 - name: Add DNS name
