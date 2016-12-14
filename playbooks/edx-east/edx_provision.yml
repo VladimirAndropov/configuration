@@ -58,7 +58,7 @@
         retries: 10
         search_regex: "final-message"
     - name: gather_facts
-      module: setup
+      setup: ""
   vars_files:
     - roles/edxapp/defaults/main.yml
     - roles/xqueue/defaults/main.yml
