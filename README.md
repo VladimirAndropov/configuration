@@ -1,12 +1,10 @@
-# Configuration Management
+# Описание 
 
-## Introduction
+## Установка 
 
-The goal of the edx/configuration project is to provide a simple, but
-flexible, way for anyone to stand up an instance of Open edX that is
-fully configured and ready-to-go.
+Для установки запустите скрипт sandbox.sh
 
-Before getting started, please look at the [Open EdX Installation options](https://open.edx.org/installation-options), to see which method for deploying OpenEdX is right for you.
+
 
 Building the platform takes place in two phases:
 
